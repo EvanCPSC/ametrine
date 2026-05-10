@@ -1,7 +1,9 @@
-# Tauri + SvelteKit + TypeScript
+# Ametrine Sticky Notes
+## An upgraded version of Windows Sticky Notes app
 
-This template should help get you started developing with Tauri, SvelteKit and TypeScript in Vite.
-
-## Recommended IDE Setup
-
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+### The problem with Windows version:
+- Doesn’t allow “always on top”
+- Not much customization of notes and text
+### Idea:
+- Make text based on Markdown
+- Add more customization features to each note
