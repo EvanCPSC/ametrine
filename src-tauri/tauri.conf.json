@@ -12,13 +12,13 @@
   "app": {
     "windows": [
       {
-        "title": "ametrine",
+        "title": "Ametrine - Sticky Notes",
         "width": 800,
         "height": 600
       }
     ],
     "security": {
-      "csp": null
+      "capabilities": ["default"]
     }
   },
   "bundle": {
