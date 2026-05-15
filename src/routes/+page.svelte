@@ -1,13 +1,19 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
   import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
+  import { getCurrentWindow } from '@tauri-apps/api/window';
 
 
-  function createWindow() {
-    const win = new WebviewWindow('note', {
+  function createWindow(noteID: string) {
+    const win = new WebviewWindow(noteID, {
+      url: '/note',
       title: 'Note',
-      width: 300,
-      height: 400,
+      width: 288,
+      height: 320,
+      decorations: false,
+      minHeight: 160,
+      minWidth: 144,
+      resizable: true,
     });
 
     win.once('tauri://created', () => {
@@ -19,22 +25,27 @@
     });
   }
 
+  async function closeWindow() {
+    await getCurrentWindow().close();
+  }
+
 </script>
 
-<main class="container">
-  <h1>Spawn Window</h1>
+<nav class="topnav">
+  <button on:click={() => createWindow("note")}>+</button>
+  <div class="right-buttons">
+    <button>*</button>
+    <button on:click={closeWindow}>X</button>
+  </div>
+</nav>
 
-  <button on:click={createWindow}>Spawn</button>
+<main class="container">
+  <h1>Ametrine Sticky Notes</h1>
+
+
 </main>
 
 <style>
-.logo.vite:hover {
-  filter: drop-shadow(0 0 2em #747bff);
-}
-
-.logo.svelte-kit:hover {
-  filter: drop-shadow(0 0 2em #ff3e00);
-}
 
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
@@ -54,27 +65,22 @@
 
 .container {
   margin: 0;
-  padding-top: 10vh;
+  padding-top: 2vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: 0.75s;
-}
-
-.logo.tauri:hover {
-  filter: drop-shadow(0 0 2em #24c8db);
-}
-
-.row {
+.topnav {
+  -webkit-app-region: drag;
   display: flex;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.topnav button {
+  -webkit-app-region: no-drag;
 }
 
 a {
@@ -94,7 +100,7 @@ h1 {
 input,
 button {
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: none;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;

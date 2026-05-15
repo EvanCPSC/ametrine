@@ -13,8 +13,12 @@
     "windows": [
       {
         "title": "Ametrine - Sticky Notes",
-        "width": 800,
-        "height": 600
+        "width": 352,
+        "height": 544,
+        "decorations": false,
+        "minWidth": 320,
+        "minHeight": 512,
+        "resizable": true
       }
     ],
     "security": {
