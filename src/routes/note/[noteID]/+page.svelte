@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { page } from '$app/state';
   import { invoke } from "@tauri-apps/api/core";
   import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
   import { getCurrentWindow } from '@tauri-apps/api/window';
   import { Note } from '$lib/Note';
-
+  
+  $: noteID = page.params.noteID;
 
   function createWindow() {
     const note = new Note();
@@ -21,7 +23,6 @@
   async function closeWindow() {
     await getCurrentWindow().close();
   }
-
 </script>
 
 <nav class="topnav">
@@ -33,14 +34,12 @@
 </nav>
 
 <main class="container">
-  <h1>Ametrine Sticky Notes</h1>
-
-
+  <h1>Note {noteID}</h1>
+  <input type="text">
 </main>
 
 <style>
-
-:root {
+  :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 24px;
@@ -144,5 +143,4 @@ button {
     background-color: #0f0f0f69;
   }
 }
-
 </style>
