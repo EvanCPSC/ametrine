@@ -2,12 +2,17 @@
   import { invoke } from "@tauri-apps/api/core";
   import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
   import { getCurrentWindow } from '@tauri-apps/api/window';
-  import { Note } from '$lib/Note';
+  import { getWindowConfig } from '$lib/Note';
+  import { notes, addNote, removeNote } from '$lib/notesStore';
 
 
-  function createWindow() {
-    const note = new Note();
-    const win = new WebviewWindow(note.getID(), note.windowConfig());
+  async function createWindow() {
+    const note = await addNote();
+
+    const win = new WebviewWindow(
+      note.id,
+      getWindowConfig(note)
+    );
 
     win.once('tauri://created', () => {
       console.log('window created');
@@ -34,8 +39,15 @@
 
 <main class="container">
   <h1>Ametrine Sticky Notes</h1>
-
-
+  <br>
+  {#each $notes as note}
+    <div class="note">
+      <h3>{note.id}</h3>
+      <p>Lorem ipsum</p>
+      <button on:click={() => removeNote(note.id)}>X</button>
+    </div>
+    <br>
+  {/each}
 </main>
 
 <style>
@@ -121,9 +133,6 @@ button {
   outline: none;
 }
 
-#greet-input {
-  margin-right: 5px;
-}
 
 @media (prefers-color-scheme: dark) {
   :root {

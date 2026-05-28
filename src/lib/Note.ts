@@ -1,25 +1,24 @@
 import { nanoid } from 'nanoid';
-export class Note {
-    id: string;
 
-    constructor() {
-        this.id = "note-" + nanoid(8);
-    }
+export interface Note {
+  id: string;
+}
 
-    getID() {
-        return `${this.id}`;
-    }
+export function createNote(): Note {
+  return {
+    id: "note-" + nanoid(8),
+  };
+}
 
-    windowConfig() {
-        return {
-            url: '/note/' + this.id,
-            title: 'Note',
-            width: 288,
-            height: 320,
-            decorations: false,
-            minHeight: 160,
-            minWidth: 144,
-            resizable: true,
-        }
-    }
+export function getWindowConfig(note: Note) {
+  return {
+    url: '/note/' + note.id,
+    title: 'Note',
+    width: 288,
+    height: 320,
+    decorations: false,
+    minHeight: 160,
+    minWidth: 144,
+    resizable: true,
+  };
 }

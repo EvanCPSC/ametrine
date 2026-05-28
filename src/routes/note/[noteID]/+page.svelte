@@ -3,13 +3,18 @@
   import { invoke } from "@tauri-apps/api/core";
   import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
   import { getCurrentWindow } from '@tauri-apps/api/window';
-  import { Note } from '$lib/Note';
+  import { getWindowConfig } from '$lib/Note';
+  import { notes, addNote, removeNote } from '$lib/notesStore';
   
   $: noteID = page.params.noteID;
 
-  function createWindow() {
-    const note = new Note();
-    const win = new WebviewWindow(note.getID(), note.windowConfig());
+  async function createWindow() {
+    const note = await addNote();
+
+    const win = new WebviewWindow(
+      note.id,
+      getWindowConfig(note)
+    );
 
     win.once('tauri://created', () => {
       console.log('window created');
