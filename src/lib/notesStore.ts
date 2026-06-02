@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import { createNote } from '$lib/Note';
+import { createNote, getWindowConfig } from '$lib/Note';
 import type { Note } from '$lib/Note';
 import { emit } from '@tauri-apps/api/event';
 

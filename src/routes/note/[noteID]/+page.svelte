@@ -3,13 +3,17 @@
   import { invoke } from "@tauri-apps/api/core";
   import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
   import { getCurrentWindow } from '@tauri-apps/api/window';
-  import { getWindowConfig } from '$lib/Note';
+  import { getWindowConfig, type Note } from '$lib/Note';
   import { notes, addNote, removeNote } from '$lib/notesStore';
   
   $: noteID = page.params.noteID;
 
-  async function createWindow() {
+  async function newNote() {
     const note = await addNote();
+    return note;
+  }
+
+  async function createWindow(note: Note) {
 
     const win = new WebviewWindow(
       note.id,
@@ -31,7 +35,7 @@
 </script>
 
 <nav class="topnav">
-  <button on:click={createWindow}>+</button>
+  <button on:click={async () => await createWindow(await newNote())}>+</button>
   <div class="right-buttons">
     <button>*</button>
     <button on:click={closeWindow}>X</button>

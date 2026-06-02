@@ -1,13 +1,16 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
   import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
-  import { getCurrentWindow } from '@tauri-apps/api/window';
-  import { getWindowConfig } from '$lib/Note';
+  import { getCurrentWindow, getAllWindows } from '@tauri-apps/api/window';
+  import { getWindowConfig, type Note } from '$lib/Note';
   import { notes, addNote, removeNote } from '$lib/notesStore';
 
-
-  async function createWindow() {
+  async function newNote() {
     const note = await addNote();
+    return note;
+  }
+
+  async function createWindow(note: Note) {
 
     const win = new WebviewWindow(
       note.id,
@@ -27,10 +30,16 @@
     await getCurrentWindow().close();
   }
 
+  async function deleteNote(id: string) {
+    removeNote(id);
+    const wins = await getAllWindows();
+    wins.find(w => w.label === id)?.close();
+  }
+
 </script>
 
 <nav class="topnav">
-  <button on:click={createWindow}>+</button>
+  <button on:click={async () => await createWindow(await newNote())}>+</button>
   <div class="right-buttons">
     <button>*</button>
     <button on:click={closeWindow}>X</button>
@@ -41,10 +50,10 @@
   <h1>Ametrine Sticky Notes</h1>
   <br>
   {#each $notes as note}
-    <div class="note">
+    <div class="note" on:click={async () => await createWindow(note)}>
       <h3>{note.id}</h3>
-      <p>Lorem ipsum</p>
-      <button on:click={() => removeNote(note.id)}>X</button>
+      <p>{note.data}</p>
+      <button on:click={() => deleteNote(note.id)}>X</button>
     </div>
     <br>
   {/each}
@@ -58,8 +67,8 @@
   line-height: 24px;
   font-weight: 400;
 
-  color: #0f0f0f;
-  background-color: #f6f6f6;
+  color: #f6f6f6;
+  background-color: #2f2f2f;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -88,6 +97,14 @@
   -webkit-app-region: no-drag;
 }
 
+.note {
+  width: 90%;
+  padding: 1rem;
+  background-color: #4f4f4f;
+  margin: auto;
+
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -95,7 +112,7 @@ a {
 }
 
 a:hover {
-  color: #535bf2;
+  color: #24c8db;
 }
 
 h1 {
@@ -110,8 +127,8 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  color: #0f0f0f;
-  background-color: #ffffff;
+  color: #ffffff;
+  background-color: #0f0f0f98;
   transition: border-color 0.25s;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
 }
@@ -125,33 +142,12 @@ button:hover {
 }
 button:active {
   border-color: #396cd8;
-  background-color: #e8e8e8;
+  background-color: #0f0f0f69;
 }
 
 input,
 button {
   outline: none;
-}
-
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: #f6f6f6;
-    background-color: #2f2f2f;
-  }
-
-  a:hover {
-    color: #24c8db;
-  }
-
-  input,
-  button {
-    color: #ffffff;
-    background-color: #0f0f0f98;
-  }
-  button:active {
-    background-color: #0f0f0f69;
-  }
 }
 
 </style>
