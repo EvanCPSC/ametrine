@@ -2,13 +2,13 @@ import { nanoid } from 'nanoid';
 
 export interface Note {
   id: string;
-  data: string;
+  content: string;
 }
 
 export function createNote(): Note {
   return {
     id: "note-" + nanoid(8),
-    data: ""
+    content: ""
   };
 }
 

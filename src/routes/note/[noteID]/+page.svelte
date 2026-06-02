@@ -1,12 +1,29 @@
 <script lang="ts">
   import { page } from '$app/state';
+  import { onMount } from 'svelte';
   import { invoke } from "@tauri-apps/api/core";
   import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
   import { getCurrentWindow } from '@tauri-apps/api/window';
   import { getWindowConfig, type Note } from '$lib/Note';
-  import { notes, addNote, removeNote } from '$lib/notesStore';
+  import { notes, addNote, removeNote, updateNoteContent } from '$lib/notesStore';
+  import { loadNote, saveNote } from '$lib/storage';
   
+  let currNote: Note | null = null;
+
   $: noteID = page.params.noteID;
+  
+  onMount(() => {
+    if (noteID) {
+      currNote = loadNote(noteID);
+
+      if (!currNote) {
+        currNote = {
+          id: noteID,
+          content: ''
+        };
+      }
+    }
+  });
 
   async function newNote() {
     const note = await addNote();
@@ -32,6 +49,15 @@
   async function closeWindow() {
     await getCurrentWindow().close();
   }
+
+  let timeout: ReturnType<typeof setTimeout>;
+
+  function onInput() {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      if (currNote) saveNote(currNote);
+    }, 300);
+  }
 </script>
 
 <nav class="topnav">
@@ -44,7 +70,14 @@
 
 <main class="container">
   <h1>Note {noteID}</h1>
-  <input type="text">
+  {#if currNote}
+    <textarea
+      bind:value={currNote.content}
+      on:input={onInput}
+    ></textarea>
+  {:else}
+    <pre>{JSON.stringify(currNote, null, 2)}</pre>
+  {/if}
 </main>
 
 <style>
@@ -98,7 +131,7 @@ h1 {
   text-align: center;
 }
 
-input,
+textarea,
 button {
   border-radius: 8px;
   border: none;

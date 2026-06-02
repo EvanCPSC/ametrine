@@ -24,3 +24,18 @@ export function removeNote(id: string) {
 
     emit('note-removed', {id});
 }
+
+export function updateNoteContent(id: string, content: string) {
+  notes.update(current => {
+    return current.map(note => {
+      if (note.id === id) {
+        return {
+          ...note,
+          content
+        };
+      }
+
+      return note;
+    });
+  });
+}
