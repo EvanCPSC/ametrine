@@ -64,6 +64,7 @@
   <button on:click={async () => await createWindow(await newNote())}>+</button>
   <div class="right-buttons">
     <button>*</button>
+    <input type="color">
     <button on:click={closeWindow}>X</button>
   </div>
 </nav>
@@ -82,7 +83,7 @@
 
 <style>
   :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Nunito Sans', sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;

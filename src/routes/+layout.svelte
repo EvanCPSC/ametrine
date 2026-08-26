@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '../app.css';
   import { onMount } from 'svelte';
   import { listen } from '@tauri-apps/api/event';
   import type { Note } from '$lib/Note';

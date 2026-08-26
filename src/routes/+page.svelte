@@ -1,5 +1,6 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
+  import '../app.css';
   import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
   import { getCurrentWindow, getAllWindows } from '@tauri-apps/api/window';
   import { getWindowConfig, type Note } from '$lib/Note';
@@ -39,10 +40,22 @@
 </script>
 
 <nav class="topnav">
-  <button on:click={async () => await createWindow(await newNote())}>+</button>
+  <button on:click={async () => await createWindow(await newNote())} class="add-button">
+    <span class="material-symbols-outlined add-icon">
+      note_stack_add
+    </span>
+  </button>
   <div class="right-buttons">
-    <button>*</button>
-    <button on:click={closeWindow}>X</button>
+    <button class="settings-button">
+      <span class="material-symbols-outlined settings-icon">
+        settings
+      </span>
+    </button>
+    <button on:click={closeWindow} class="close-button">
+      <span class="material-symbols-outlined close-icon">
+        close
+      </span>
+    </button>
   </div>
 </nav>
 
@@ -50,10 +63,11 @@
   <h1>Ametrine Sticky Notes</h1>
   <br>
   {#each $notes as note}
+    <!-- TODO: fix later lol https://inclusive-components.design/cards/ -->
     <div class="note" on:click={async () => await createWindow(note)}>
       <h3>{note.id}</h3>
-      <p>{note.data}</p>
-      <button on:click={() => deleteNote(note.id)}>X</button>
+      <p>{note.content}</p>
+      <button on:click|stopPropagation={() => deleteNote(note.id)}>X</button>
     </div>
     <br>
   {/each}
@@ -62,13 +76,13 @@
 <style>
 
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Nunito Sans', sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
 
-  color: #f6f6f6;
-  background-color: #2f2f2f;
+  color: var(--primary-font);
+  background-color: var(--primary-bg);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -91,6 +105,7 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  background-color: var(--container-bg);
 }
 
 .topnav button {
@@ -102,7 +117,6 @@
   padding: 1rem;
   background-color: #4f4f4f;
   margin: auto;
-
 }
 
 a {
@@ -137,17 +151,41 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  border-color: #396cd8;
-}
-button:active {
-  border-color: #396cd8;
-  background-color: #0f0f0f69;
-}
-
 input,
 button {
   outline: none;
+}
+
+.add-button, .settings-button, .close-button {
+  background-color: var(--container-bg);
+}
+
+.add-icon, .settings-icon, .close-icon {
+  color: var(--primary-icon);
+}
+
+.add-button:hover {
+  .add-icon {
+    color: var(--hover-icon);
+  }
+  background-color: var(--hover-add-bg);
+  transition: 0.3s;
+}
+
+.settings-button:hover {
+  .settings-icon {
+    color: var(--hover-icon);
+  }
+  background-color: var(--hover-settings-bg);
+  transition: 0.3s;
+}
+
+.close-button:hover {
+  .close-icon {
+    color: var(--hover-icon);
+  }
+  background-color: var(--hover-close-bg);
+  transition: 0.3s;
 }
 
 </style>

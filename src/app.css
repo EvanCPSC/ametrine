@@ -1,0 +1,46 @@
+/* 1. Regular */
+@font-face {
+  font-family: 'Nunito Sans';
+  src: url('/fonts/NunitoSans-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* 2. Regular Italic */
+@font-face {
+  font-family: 'Nunito Sans';
+  src: url('/fonts/NunitoSans-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic; /* <--- Tells the app this file is italic */
+}
+
+/* 3. Bold */
+@font-face {
+  font-family: 'Nunito Sans';
+  src: url('/fonts/NunitoSans-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* 4. Bold Italic */
+@font-face {
+  font-family: 'Nunito Sans';
+  src: url('/fonts/NunitoSans-BoldItalic.woff2') format('woff2');
+  font-weight: 700;    /* <--- Tells the app this file is bold */
+  font-style: italic;  /* <--- Tells the app this file is italic */
+}
+
+:root {
+  --primary-bg: #1E1E1E;
+  --container-bg: #302E32;
+  --note-hover-bg: #716D69;
+  --primary-font: #FFFFFF;
+  --secondary-font: #DEDBD8;
+  --primary-icon: #716D69;
+  --hover-icon: #302E32;
+  --hover-close-bg: #F43F5D;
+  --hover-settings-bg: #CA3FF4;
+  --hover-add-bg: #F4A03F;
+  --hsl-header: hsl(270, 4%, 19%);
+  --hsl-icon: hsl(30, 4%, 43%);
+}
