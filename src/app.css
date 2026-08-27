@@ -41,6 +41,9 @@
   --hover-close-bg: #F43F5D;
   --hover-settings-bg: #CA3FF4;
   --hover-add-bg: #F4A03F;
-  --hsl-header: hsl(270, 4%, 19%);
-  --hsl-icon: hsl(270, 4%, 43%);
+  --hsl-header-hue: 286;
+  --hsl-header-saturation: 89%;
+  --hsl-header-lightness: 60%;
+  --hsl-header: hsl(var(--hsl-header-hue), var(--hsl-header-saturation), var(--hsl-header-lightness));
+  --hsl-icon: hsl(mod(calc((var(--hsl-header-hue) + 180)), 360), 10%, 25%);
 }

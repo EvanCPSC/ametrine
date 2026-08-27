@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from '$app/state';
+  import '../../../app.css';
   import { onMount } from 'svelte';
   import { invoke } from "@tauri-apps/api/core";
   import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
@@ -58,19 +59,56 @@
       if (currNote) saveNote(currNote);
     }, 300);
   }
+
+  let showSlider = false;
+  let noteColor = 286;
+
+  function updateVariable(value: number) {
+  document.documentElement.style.setProperty(
+    '--hsl-header-hue',
+    `${value}`
+  );
+}
+
 </script>
 
 <nav class="topnav">
-  <button on:click={async () => await createWindow(await newNote())}>+</button>
+  <button on:click={async () => await createWindow(await newNote())} class="add-button">
+    <span class="material-symbols-outlined add-icon">
+      note_stack_add
+    </span>
+  </button>
   <div class="right-buttons">
-    <button>*</button>
-    <input type="color">
-    <button on:click={closeWindow}>X</button>
+    <button class="minimize-button">
+      <span class="material-symbols-outlined minimize-icon">
+        collapse_content
+      </span>
+    </button>
+    <button on:click={() => showSlider = !showSlider} class="settings-button">
+      <span class="material-symbols-outlined settings-icon">
+        settings
+      </span>
+    </button>
+    <button on:click={closeWindow} class="close-button">
+      <span class="material-symbols-outlined close-icon">
+        close
+      </span>
+    </button>
   </div>
 </nav>
 
 <main class="container">
-  <h1>Note {noteID}</h1>
+  <!-- <h1>Note {noteID}</h1> -->
+  {#if showSlider}
+    <input
+      type="range"
+      min="0"
+      max="360"
+      bind:value={noteColor}
+      on:input={() => updateVariable(noteColor)}
+    />
+  {/if}
+  <br>
   {#if currNote}
     <textarea
       bind:value={currNote.content}
@@ -82,14 +120,15 @@
 </main>
 
 <style>
-  :root {
+
+:root {
   font-family: 'Nunito Sans', sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
 
-  color: #0f0f0f;
-  background-color: #f6f6f6;
+  color: var(--primary-font);
+  background-color: var(--primary-bg);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -100,7 +139,6 @@
 
 .container {
   margin: 0;
-  padding-top: 2vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -112,28 +150,50 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  background-color: var(--hsl-header);
+  margin: 0;
+  box-shadow: none;
+  transition: 0.2s;
 }
 
 .topnav button {
   -webkit-app-region: no-drag;
+  box-shadow: none;
 }
 
-a {
+button {
+  border: none;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
   font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+  font-family: inherit;
+  color: #ffffff;
+  background-color: #0f0f0f98;
+  transition: border-color 0.25s;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+  outline: none;
+  cursor: pointer;
 }
 
-a:hover {
-  color: #535bf2;
+.add-button, .minimize-button, .settings-button, .close-button {
+  background-color: var(--hsl-header);
+  transition: 0.2s;
+}
+
+.add-icon, .minimize-icon, .settings-icon, .close-icon {
+  color: var(--hsl-icon);
+}
+
+.add-button:hover, .minimize-button:hover, .settings-button:hover, .close-button:hover {
+  background-color: hsl(var(--hsl-header-hue), var(--hsl-header-saturation), calc(var(--hsl-header-lightness) - 20%));
+  transition: 0.2s;
 }
 
 h1 {
   text-align: center;
 }
 
-textarea,
-button {
+textarea {
   border-radius: 8px;
   border: none;
   padding: 0.6em 1.2em;
@@ -146,44 +206,5 @@ button {
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
 }
 
-button {
-  cursor: pointer;
-}
 
-button:hover {
-  border-color: #396cd8;
-}
-button:active {
-  border-color: #396cd8;
-  background-color: #e8e8e8;
-}
-
-input,
-button {
-  outline: none;
-}
-
-#greet-input {
-  margin-right: 5px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: #f6f6f6;
-    background-color: #2f2f2f;
-  }
-
-  a:hover {
-    color: #24c8db;
-  }
-
-  input,
-  button {
-    color: #ffffff;
-    background-color: #0f0f0f98;
-  }
-  button:active {
-    background-color: #0f0f0f69;
-  }
-}
 </style>
