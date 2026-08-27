@@ -28,6 +28,18 @@
       });
     });
 
+    const unlistenUpdated = await listen('note-updated', (event) => {
+    const incoming = event.payload as Note;
+
+    notes.update(current => {
+        return current.map(note =>
+            note.id === incoming.id
+                ? incoming
+                : note
+            );
+        });
+    });
+
     })();
 
       return () => {
@@ -35,6 +47,8 @@
         unlistenRemoved?.();
       };
     });
+
+    
 </script>
 
 <slot />

@@ -63,11 +63,12 @@
   <h1>Ametrine Sticky Notes</h1>
   <br>
   {#each $notes as note}
-    <!-- TODO: fix later lol https://inclusive-components.design/cards/ -->
+    <!-- https://inclusive-components.design/cards/ -->
     <div class="note" on:click={async () => await createWindow(note)}>
-      <h3>{note.id}</h3>
-      <p>{note.content}</p>
-      <button on:click|stopPropagation={() => deleteNote(note.id)}>X</button>
+      <p class="note-content">{note.content}</p>
+      <span class="material-symbols-outlined delete-icon" on:click|stopPropagation={() => deleteNote(note.id)}>
+        delete
+      </span>
     </div>
     <br>
   {/each}
@@ -112,30 +113,54 @@
   -webkit-app-region: no-drag;
 }
 
+.delete-icon {
+  opacity: 0%;
+  cursor: pointer;
+  color: var(--primary-icon);
+  transition: 0.2s;
+}
+
+.note-content {
+  color: var(--primary-font);
+  flex: 1;
+  text-align: left;
+  padding: 0;
+  margin-top: 0;
+  margin-right: 0.5rem;
+  display: -webkit-box;
+  line-clamp: 4;;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+}
+
 .note {
   width: 90%;
   padding: 1rem;
-  background-color: #4f4f4f;
+  background-color: var(--container-bg);
   margin: auto;
+  transition: 0.2s;
+  display: flex;
+  align-items: flex-start;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-
-a:hover {
-  color: #24c8db;
+.note:hover {
+  .delete-icon {
+    opacity: 100%;
+    transition: 0.2s;
+  }
+  .delete-icon:hover {
+    color: var(--secondary-font);
+    transition: 0.2s;
+  }
+  background-color: var(--note-hover-bg);
 }
 
 h1 {
   text-align: center;
 }
 
-input,
 button {
-  border-radius: 8px;
   border: none;
   padding: 0.6em 1.2em;
   font-size: 1em;
@@ -145,23 +170,18 @@ button {
   background-color: #0f0f0f98;
   transition: border-color 0.25s;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-}
-
-button {
-  cursor: pointer;
-}
-
-input,
-button {
   outline: none;
+  cursor: pointer;
 }
 
 .add-button, .settings-button, .close-button {
   background-color: var(--container-bg);
+  transition: 0.2s;
 }
 
 .add-icon, .settings-icon, .close-icon {
   color: var(--primary-icon);
+  transition: 0.2s;
 }
 
 .add-button:hover {
@@ -169,7 +189,7 @@ button {
     color: var(--hover-icon);
   }
   background-color: var(--hover-add-bg);
-  transition: 0.3s;
+  transition: 0.2s;
 }
 
 .settings-button:hover {
@@ -177,7 +197,7 @@ button {
     color: var(--hover-icon);
   }
   background-color: var(--hover-settings-bg);
-  transition: 0.3s;
+  transition: 0.2s;
 }
 
 .close-button:hover {
@@ -185,7 +205,7 @@ button {
     color: var(--hover-icon);
   }
   background-color: var(--hover-close-bg);
-  transition: 0.3s;
+  transition: 0.2s;
 }
 
 </style>

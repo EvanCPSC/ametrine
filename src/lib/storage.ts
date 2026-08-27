@@ -1,10 +1,12 @@
 import type { Note } from '$lib/Note';
+import { emit } from '@tauri-apps/api/event';
 
-export function saveNote(note: Note) {
+export async function saveNote(note: Note) {
   localStorage.setItem(
     note.id,
     JSON.stringify(note)
   );
+  await emit('note-updated', note);
 }
 
 export function loadNote(id: string): Note | null {
