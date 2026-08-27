@@ -60,18 +60,28 @@
 </nav>
 
 <main class="container">
-  <h1>Ametrine Sticky Notes</h1>
+
+    <div class="title-container">
+      <p id="title-ametrine">Ametrine</p>
+      <p id="title-separator">|</p>
+      <p id="title-sticky-notes">Sticky Notes</p>
+    </div>
+    <hr id="title-note-separator">
   <br>
+
   {#each $notes as note}
     <!-- https://inclusive-components.design/cards/ -->
+
     <div class="note" on:click={async () => await createWindow(note)}>
       <p class="note-content">{note.content}</p>
       <span class="material-symbols-outlined delete-icon" on:click|stopPropagation={() => deleteNote(note.id)}>
         delete
       </span>
     </div>
+
     <br>
   {/each}
+
 </main>
 
 <style>
@@ -94,11 +104,51 @@
 
 .container {
   margin: 0;
-  padding-top: 2vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   text-align: center;
+}
+
+.title-container {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  margin-bottom: 0;
+  p {
+    margin-top: 1.2rem;
+    margin-bottom: 0.8rem;
+    margin-left: 0.5rem;
+  }
+}
+
+#title-ametrine {
+  font-size: 24px;
+  font-weight: bolder;
+  color: var(--secondary-font);
+}
+
+#title-separator {
+  color: var(--primary-icon);
+  font-size: 40px;
+  margin-left: 0.4rem;
+  margin-right: 0.4rem;
+  font-weight: lighter;
+  transform: translateY(-3px);
+}
+
+#title-sticky-notes {
+  font-size: 16px;
+  font-weight: lighter;
+  color: var(--secondary-font);
+}
+
+#title-note-separator {
+  margin-left: 0.2rem;
+  margin-right: 0.2rem;
+  border: none;
+  height: 0.05rem;
+  background-color: var(--primary-icon);
 }
 
 .topnav {
@@ -107,57 +157,13 @@
   flex-direction: row;
   justify-content: space-between;
   background-color: var(--container-bg);
+  margin: 0;
+  box-shadow: none;
 }
 
 .topnav button {
   -webkit-app-region: no-drag;
-}
-
-.delete-icon {
-  opacity: 0%;
-  cursor: pointer;
-  color: var(--primary-icon);
-  transition: 0.2s;
-}
-
-.note-content {
-  color: var(--primary-font);
-  flex: 1;
-  text-align: left;
-  padding: 0;
-  margin-top: 0;
-  margin-right: 0.5rem;
-  display: -webkit-box;
-  line-clamp: 4;;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;  
-  overflow: hidden;
-}
-
-.note {
-  width: 90%;
-  padding: 1rem;
-  background-color: var(--container-bg);
-  margin: auto;
-  transition: 0.2s;
-  display: flex;
-  align-items: flex-start;
-}
-
-.note:hover {
-  .delete-icon {
-    opacity: 100%;
-    transition: 0.2s;
-  }
-  .delete-icon:hover {
-    color: var(--secondary-font);
-    transition: 0.2s;
-  }
-  background-color: var(--note-hover-bg);
-}
-
-h1 {
-  text-align: center;
+  box-shadow: none;
 }
 
 button {
@@ -206,6 +212,49 @@ button {
   }
   background-color: var(--hover-close-bg);
   transition: 0.2s;
+}
+
+.delete-icon {
+  opacity: 0%;
+  cursor: pointer;
+  color: var(--primary-icon);
+  transition: 0.2s;
+}
+
+.note-content {
+  color: var(--primary-font);
+  flex: 1;
+  text-align: left;
+  padding: 0;
+  margin-top: 0;
+  margin-right: 0.5rem;
+  display: -webkit-box;
+  line-clamp: 4;;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+}
+
+.note {
+  padding: 1rem;
+  background-color: var(--container-bg);
+  margin-left: 0.4rem;
+  margin-right: 0.4rem;
+  transition: 0.2s;
+  display: flex;
+  align-items: flex-start;
+}
+
+.note:hover {
+  .delete-icon {
+    opacity: 100%;
+    transition: 0.2s;
+  }
+  .delete-icon:hover {
+    color: var(--secondary-font);
+    transition: 0.2s;
+  }
+  background-color: var(--note-hover-bg);
 }
 
 </style>

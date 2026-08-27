@@ -31,16 +31,16 @@
 }
 
 :root {
-  --primary-bg: #1E1E1E;
+  --primary-bg: #211F24;
   --container-bg: #302E32;
   --note-hover-bg: #444147;
-  --primary-font: #FFFFFF;
-  --secondary-font: #DEDBD8;
-  --primary-icon: #716D69;
+  --primary-font: #FEFDFF;
+  --secondary-font: #D8DBDE;
+  --primary-icon: #6d6971;
   --hover-icon: #302E32;
   --hover-close-bg: #F43F5D;
   --hover-settings-bg: #CA3FF4;
   --hover-add-bg: #F4A03F;
   --hsl-header: hsl(270, 4%, 19%);
-  --hsl-icon: hsl(30, 4%, 43%);
+  --hsl-icon: hsl(270, 4%, 43%);
 }
