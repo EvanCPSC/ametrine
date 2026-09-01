@@ -8,6 +8,7 @@
   import { getWindowConfig, type Note } from '$lib/Note';
   import { notes, addNote, removeNote, updateNoteContent } from '$lib/notesStore';
   import { loadNote, saveNote } from '$lib/storage';
+  import MarkdownEditor from '$lib/MarkdownEditor.svelte';
   
   let currNote: Note | null = null;
 
@@ -131,10 +132,7 @@ function toggleAOT() {
   {/if}
   <br>
   {#if currNote}
-    <textarea
-      bind:value={currNote.content}
-      on:input={onInput}
-    ></textarea>
+    <MarkdownEditor bind:markdown={currNote.content} on:input={onInput} />
   {:else}
     <pre>{JSON.stringify(currNote, null, 2)}</pre>
   {/if}
@@ -156,6 +154,15 @@ function toggleAOT() {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+}
+
+:global(html), :global(body) {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+:global(html::-webkit-scrollbar), :global(body::-webkit-scrollbar) {
+  display: none; /* Chrome, Safari, and Opera */
 }
 
 .container {

@@ -102,6 +102,15 @@
   -webkit-text-size-adjust: 100%;
 }
 
+:global(html), :global(body) {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+:global(html::-webkit-scrollbar), :global(body::-webkit-scrollbar) {
+  display: none; /* Chrome, Safari, and Opera */
+}
+
 .container {
   margin: 0;
   display: flex;
