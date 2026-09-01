@@ -46,4 +46,5 @@
   --hsl-header-lightness: 60%;
   --hsl-header: hsl(var(--hsl-header-hue), var(--hsl-header-saturation), var(--hsl-header-lightness));
   --hsl-icon: hsl(mod(calc((var(--hsl-header-hue) + 180)), 360), 10%, 25%);
+  --hsl-header-opp: hsl(mod(calc((var(--hsl-header-hue) + 180)), 360), 89%, 60%)
 }

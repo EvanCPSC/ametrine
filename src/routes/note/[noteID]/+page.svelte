@@ -60,7 +60,7 @@
     }, 300);
   }
 
-  let showSlider = false;
+  let showSettings = false;
   let noteColor = 286;
 
   function updateVariable(value: number) {
@@ -68,6 +68,15 @@
     '--hsl-header-hue',
     `${value}`
   );
+
+}
+
+let alwaysOnTop = false;
+
+function toggleAOT() {
+  alwaysOnTop = !alwaysOnTop
+  getCurrentWindow().setAlwaysOnTop(alwaysOnTop)
+    .catch((err) => console.error("Failed to set always on top:", err));
 }
 
 </script>
@@ -84,7 +93,7 @@
         collapse_content
       </span>
     </button>
-    <button on:click={() => showSlider = !showSlider} class="settings-button">
+    <button on:click={() => showSettings = !showSettings} class="settings-button">
       <span class="material-symbols-outlined settings-icon">
         settings
       </span>
@@ -99,14 +108,26 @@
 
 <main class="container">
   <!-- <h1>Note {noteID}</h1> -->
-  {#if showSlider}
-    <input
-      type="range"
-      min="0"
-      max="360"
-      bind:value={noteColor}
-      on:input={() => updateVariable(noteColor)}
-    />
+  {#if showSettings}
+    <div class="settings-container">
+      <input
+        type="range"
+        min="0"
+        max="360"
+        bind:value={noteColor}
+        on:input={() => updateVariable(noteColor)}
+        class="settings-color"
+      />
+      <button
+        on:click={() => toggleAOT()}
+        class="settings-aot"
+        style:background-color={alwaysOnTop ? 'var(--hsl-header-opp)' : 'var(--hsl-header)'}
+      >
+        <span class="material-symbols-outlined aot-icon">
+          {alwaysOnTop ? 'keep_off' : 'keep'}
+        </span>
+      </button>
+    </div>
   {/if}
   <br>
   {#if currNote}
@@ -163,34 +184,67 @@
 
 button {
   border: none;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
+  padding: 0.4em 0.5em;
+  font-size: 0.4em;
+  font-weight: 400;
   font-family: inherit;
-  color: #ffffff;
-  background-color: #0f0f0f98;
-  transition: border-color 0.25s;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
   outline: none;
   cursor: pointer;
 }
 
-.add-button, .minimize-button, .settings-button, .close-button {
+.add-button, .minimize-button, .settings-button, .close-button, .settings-aot {
   background-color: var(--hsl-header);
   transition: 0.2s;
 }
 
-.add-icon, .minimize-icon, .settings-icon, .close-icon {
+.add-icon, .minimize-icon, .settings-icon, .close-icon, .aot-icon {
   color: var(--hsl-icon);
 }
 
-.add-button:hover, .minimize-button:hover, .settings-button:hover, .close-button:hover {
+.add-button:hover, .minimize-button:hover, .settings-button:hover, .close-button:hover, .settings-aot:hover {
   background-color: hsl(var(--hsl-header-hue), var(--hsl-header-saturation), calc(var(--hsl-header-lightness) - 20%));
   transition: 0.2s;
 }
 
-h1 {
-  text-align: center;
+.settings-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.settings-color {
+  appearance: none;
+  width: 100%;
+  margin-right: 0.5rem;
+  background: transparent;
+  cursor: pointer;
+}
+
+.settings-color:focus {
+  outline: none;
+}
+
+.settings-color::-webkit-slider-runnable-track {
+  background: var(--hsl-header-opp);
+  height: 0.5rem;
+  border-radius: 0.25rem;
+  transition: 0.2s;
+}
+
+.settings-color::-moz-range-track {
+  background: var(--hsl-header-opp);
+  height: 0.5rem;
+  border-radius: 0.25rem;
+  transition: 0.2s;
+}
+
+.settings-color::-webkit-slider-thumb {
+  appearance: none;
+  background-color: var(--hsl-header);
+  height: 1rem;
+  width: 1rem;
+  border-radius: 50%;
+  margin-top: -0.25rem;
+  transition: 0.2s;
 }
 
 textarea {

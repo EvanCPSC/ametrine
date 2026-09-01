@@ -19,8 +19,8 @@ export function getWindowConfig(note: Note) {
     width: 288,
     height: 320,
     decorations: false,
-    minHeight: 160,
-    minWidth: 144,
+    minHeight: 196,
+    minWidth: 172,
     resizable: true,
   };
 }
