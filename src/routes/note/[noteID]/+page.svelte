@@ -132,7 +132,15 @@ function toggleAOT() {
   {/if}
   <br>
   {#if currNote}
-    <MarkdownEditor bind:markdown={currNote.content} on:input={onInput} />
+    <MarkdownEditor
+      content={currNote.content}
+      onChange={(content) => {
+          if (currNote) {
+            currNote.content = content;
+            onInput();
+          }
+      }}
+    />
   {:else}
     <pre>{JSON.stringify(currNote, null, 2)}</pre>
   {/if}
@@ -157,6 +165,8 @@ function toggleAOT() {
 }
 
 :global(html), :global(body) {
+  margin: 0;
+  padding: 0;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
 }
@@ -182,6 +192,9 @@ function toggleAOT() {
   margin: 0;
   box-shadow: none;
   transition: 0.2s;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .topnav button {
@@ -216,6 +229,10 @@ button {
 .settings-container {
   display: flex;
   justify-content: space-between;
+  position: sticky;
+  top: 2.1rem;
+  z-index: 99;
+  background-color: var(--primary-bg);
 }
 
 .settings-color {

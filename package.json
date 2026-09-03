@@ -13,8 +13,15 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@codemirror/commands": "^6.11.0",
+    "@codemirror/lang-markdown": "^6.5.2",
+    "@codemirror/language": "^6.12.4",
+    "@codemirror/state": "^6.7.2",
+    "@codemirror/view": "^6.43.10",
+    "@lezer/highlight": "^1.2.3",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
+    "codemirror": "^6.0.2",
     "dompurify": "^3.4.14",
     "marked": "^18.0.11",
     "nanoid": "^5.1.11"

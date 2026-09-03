@@ -103,6 +103,8 @@
 }
 
 :global(html), :global(body) {
+  margin: 0;
+  padding: 0;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
 }
