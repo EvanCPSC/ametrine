@@ -130,7 +130,6 @@ function toggleAOT() {
       </button>
     </div>
   {/if}
-  <br>
   {#if currNote}
     <MarkdownEditor
       content={currNote.content}
@@ -180,7 +179,7 @@ function toggleAOT() {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  text-align: center;
+  text-align: left;
 }
 
 .topnav {
@@ -217,12 +216,20 @@ button {
   transition: 0.2s;
 }
 
+.right-buttons {
+  display: flex;
+  justify-content: flex-end;
+  button {
+    padding: 0.3rem;
+  }
+}
+
 .add-icon, .minimize-icon, .settings-icon, .close-icon, .aot-icon {
   color: var(--hsl-icon);
 }
 
 .add-button:hover, .minimize-button:hover, .settings-button:hover, .close-button:hover, .settings-aot:hover {
-  background-color: hsl(var(--hsl-header-hue), var(--hsl-header-saturation), calc(var(--hsl-header-lightness) - 20%));
+  filter: brightness(0.8);
   transition: 0.2s;
 }
 
@@ -233,6 +240,9 @@ button {
   top: 2.1rem;
   z-index: 99;
   background-color: var(--primary-bg);
+  button {
+    padding: 0.3rem;
+  }
 }
 
 .settings-color {
@@ -270,19 +280,5 @@ button {
   margin-top: -0.25rem;
   transition: 0.2s;
 }
-
-textarea {
-  border-radius: 8px;
-  border: none;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  color: #0f0f0f;
-  background-color: #ffffff;
-  transition: border-color 0.25s;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-}
-
 
 </style>

@@ -74,9 +74,12 @@
 
     <div class="note" on:click={async () => await createWindow(note)}>
       <p class="note-content">{note.content}</p>
-      <span class="material-symbols-outlined delete-icon" on:click|stopPropagation={() => deleteNote(note.id)}>
-        delete
-      </span>
+      <div class="note-right-container">
+        <span class="material-symbols-outlined delete-icon" on:click|stopPropagation={() => deleteNote(note.id)}>
+          delete
+        </span>
+      </div>
+      <div class="right-triangle"></div>
     </div>
 
     <br>
@@ -196,6 +199,11 @@ button {
   transition: 0.2s;
 }
 
+.right-buttons {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .add-icon, .settings-icon, .close-icon {
   color: var(--primary-icon);
   transition: 0.2s;
@@ -244,9 +252,11 @@ button {
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;  
   overflow: hidden;
+  white-space: pre-wrap;
 }
 
 .note {
+  position: relative;
   padding: 1rem;
   background-color: var(--container-bg);
   margin-left: 0.4rem;
@@ -266,6 +276,23 @@ button {
     transition: 0.2s;
   }
   background-color: var(--note-hover-bg);
+}
+
+.note-right-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-self: stretch;
+}
+
+.right-triangle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 2rem;
+  height: 2rem;
+  background-color: var(--hsl-header);
+  clip-path: polygon(0% 100%, 100% 100%, 100% 0%);
 }
 
 </style>
