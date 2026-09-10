@@ -32,6 +32,9 @@ importers:
       '@tauri-apps/api':
         specifier: ^2
         version: 2.11.0
+      '@tauri-apps/plugin-fs':
+        specifier: ~2.5.2
+        version: 2.5.2
       '@tauri-apps/plugin-opener':
         specifier: ^2
         version: 2.5.4
@@ -44,6 +47,9 @@ importers:
       marked:
         specifier: ^18.0.11
         version: 18.0.11
+      material-symbols:
+        specifier: ^0.47.1
+        version: 0.47.1
       nanoid:
         specifier: ^5.1.11
         version: 5.1.11
@@ -568,6 +574,9 @@ packages:
     engines: {node: '>= 10'}
     hasBin: true
 
+  '@tauri-apps/plugin-fs@2.5.2':
+    resolution: {integrity: sha512-XXvMSnFiob+G1H+YHCDf+bzWVumseQuEIhzpbOJzevUfL4k0U+sTApZWJHpoLiamggnVPJm5dJ5sDsniRyWxlg==}
+
   '@tauri-apps/plugin-opener@2.5.4':
     resolution: {integrity: sha512-1HnPkb+AmgO29HBazm4uPLKB+r7zzcTBW1d0fyYp1uP+jwtpoiNDGKMMzz58SFp49nOIrxdE3aUJtT57lfO9CQ==}
 
@@ -680,6 +689,9 @@ packages:
     resolution: {integrity: sha512-HnslJfsZkRPBDJRHvVtAaWlZHEpSu7u8LgQuJCELjRKuWR+hpq4A7sLq3p8HaI9ypVoXDXxV34CsQJEe1+J5Aw==}
     engines: {node: '>= 20'}
     hasBin: true
+
+  material-symbols@0.47.1:
+    resolution: {integrity: sha512-hBP/5D41W+3FatmX4axc7+ZEMzFV4KdPFf5enfOug2IFZOVgRtrLUNwbb88249OK6r5B7h+pKtklk+EJ3Q5fRQ==}
 
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -1217,6 +1229,10 @@ snapshots:
       '@tauri-apps/cli-win32-ia32-msvc': 2.11.1
       '@tauri-apps/cli-win32-x64-msvc': 2.11.1
 
+  '@tauri-apps/plugin-fs@2.5.2':
+    dependencies:
+      '@tauri-apps/api': 2.11.0
+
   '@tauri-apps/plugin-opener@2.5.4':
     dependencies:
       '@tauri-apps/api': 2.11.0
@@ -1322,6 +1338,8 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.5
 
   marked@18.0.11: {}
+
+  material-symbols@0.47.1: {}
 
   mri@1.2.0: {}
 

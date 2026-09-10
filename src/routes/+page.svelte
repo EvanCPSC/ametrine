@@ -3,8 +3,28 @@
   import '../app.css';
   import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
   import { getCurrentWindow, getAllWindows } from '@tauri-apps/api/window';
+  import { listen } from '@tauri-apps/api/event';
   import { getWindowConfig, type Note } from '$lib/Note';
   import { notes, addNote, removeNote } from '$lib/notesStore';
+  import { loadNotes } from '$lib/storage';
+  import { onMount } from 'svelte';
+
+  onMount(async () => {
+    const savedNotes = await loadNotes();
+    notes.set(savedNotes);
+
+    await listen<string>('note-opened', (event) => {
+      if (!openNotes.includes(event.payload)) {
+        openNotes = [...openNotes, event.payload];
+      }
+    });
+
+    await listen<string>('note-closed', (event) => {
+      openNotes = openNotes.filter(id => id !== event.payload);
+    });
+  });
+
+  let openNotes: string[] = [];
 
   async function newNote() {
     const note = await addNote();
@@ -14,7 +34,7 @@
   async function createWindow(note: Note) {
 
     const win = new WebviewWindow(
-      note.id,
+      note.note_id,
       getWindowConfig(note)
     );
 
@@ -33,6 +53,9 @@
 
   async function deleteNote(id: string) {
     removeNote(id);
+
+    openNotes = openNotes.filter(noteID => noteID !== id);
+    
     const wins = await getAllWindows();
     wins.find(w => w.label === id)?.close();
   }
@@ -73,9 +96,12 @@
     <!-- https://inclusive-components.design/cards/ -->
 
     <div class="note" on:click={async () => await createWindow(note)}>
-      <p class="note-content">{note.content}</p>
+      {#if openNotes.includes(note.note_id)}
+        <div class="note-open"></div>
+      {/if}
+      <p class="note-content">{note.note_content}</p>
       <div class="note-right-container">
-        <span class="material-symbols-outlined delete-icon" on:click|stopPropagation={() => deleteNote(note.id)}>
+        <span class="material-symbols-outlined delete-icon" on:click|stopPropagation={() => deleteNote(note.note_id)}>
           delete
         </span>
       </div>
@@ -293,6 +319,15 @@ button {
   height: 2rem;
   background-color: var(--hsl-header);
   clip-path: polygon(0% 100%, 100% 100%, 100% 0%);
+}
+
+.note-open {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3rem;
+  height: 0.25rem;
+  background-color: var(--hsl-header);
 }
 
 </style>

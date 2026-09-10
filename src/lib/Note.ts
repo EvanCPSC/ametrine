@@ -1,20 +1,41 @@
-import { nanoid } from 'nanoid';
 
-export interface Note {
-  id: string;
-  content: string;
+
+export interface NoteSettings {
+    color: number;
+    always_on_top: boolean;
+    minimized: boolean;
 }
 
-export function createNote(): Note {
-  return {
-    id: "note-" + nanoid(8),
-    content: ""
-  };
+export const defaultNoteSettings: NoteSettings = {
+    color: 286,
+    always_on_top: false,
+    minimized: false
+};
+
+export interface WindowSettings {
+    width: number;
+    height: number;
+    pos_x: number;
+    pos_y: number;
+}
+
+export const defaultWindowSettings: WindowSettings = {
+    width: 288,
+    height: 320,
+    pos_x: 0,
+    pos_y: 0
+};
+
+export interface Note {
+    note_id: string;
+    note_settings: NoteSettings;
+    window_settings: WindowSettings;
+    note_content: string;
 }
 
 export function getWindowConfig(note: Note) {
   return {
-    url: '/note/' + note.id,
+    url: '/note/' + note.note_id,
     title: 'Note',
     width: 288,
     height: 320,

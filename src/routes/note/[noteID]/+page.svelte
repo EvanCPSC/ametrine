@@ -5,27 +5,43 @@
   import { invoke } from "@tauri-apps/api/core";
   import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
   import { getCurrentWindow } from '@tauri-apps/api/window';
-  import { getWindowConfig, type Note } from '$lib/Note';
+  import {
+    getWindowConfig,
+    type Note,
+    defaultNoteSettings,
+    defaultWindowSettings
+  } from '$lib/Note';
   import { notes, addNote, removeNote, updateNoteContent } from '$lib/notesStore';
   import { loadNote, saveNote } from '$lib/storage';
+  import { emit } from '@tauri-apps/api/event';
   import MarkdownEditor from '$lib/MarkdownEditor.svelte';
   
   let currNote: Note | null = null;
 
   $: noteID = page.params.noteID;
   
-  onMount(() => {
+  onMount(async () => {
     if (noteID) {
-      currNote = loadNote(noteID);
+      currNote = await loadNote(noteID);
 
       if (!currNote) {
         currNote = {
-          id: noteID,
-          content: ''
+          note_id: noteID,
+          note_settings: { ...defaultNoteSettings },
+          window_settings: { ...defaultWindowSettings },
+          note_content: ''
         };
       }
     }
+
+    await emit('note-opened', noteID);
   });
+
+  function notifyNoteClosed() {
+    if (noteID) {
+      emit('note-closed', noteID);
+    }
+  }
 
   async function newNote() {
     const note = await addNote();
@@ -35,7 +51,7 @@
   async function createWindow(note: Note) {
 
     const win = new WebviewWindow(
-      note.id,
+      note.note_id,
       getWindowConfig(note)
     );
 
@@ -49,6 +65,8 @@
   }
 
   async function closeWindow() {
+    notifyNoteClosed();
+
     await getCurrentWindow().close();
   }
 
@@ -132,10 +150,10 @@ function toggleAOT() {
   {/if}
   {#if currNote}
     <MarkdownEditor
-      content={currNote.content}
+      content={currNote.note_content}
       onChange={(content) => {
           if (currNote) {
-            currNote.content = content;
+            currNote.note_content = content;
             onInput();
           }
       }}

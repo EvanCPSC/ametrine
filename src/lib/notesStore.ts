@@ -1,12 +1,17 @@
 import { writable } from 'svelte/store';
-import { createNote, getWindowConfig } from '$lib/Note';
-import type { Note } from '$lib/Note';
+import { nanoid } from 'nanoid';
+import { type Note, defaultNoteSettings, defaultWindowSettings } from '$lib/Note';
 import { emit } from '@tauri-apps/api/event';
 
 export const notes = writable<Note[]>([]);
 
 export async function addNote() {
-    const note = createNote();
+    const note: Note = {
+        note_id: 'note-' + nanoid(8),
+        note_settings: { ...defaultNoteSettings },
+        window_settings: { ...defaultWindowSettings },
+        note_content: ''
+    };
 
     notes.update(current => {
         return [...current, note];
@@ -19,23 +24,23 @@ export async function addNote() {
 
 export function removeNote(id: string) {
     notes.update(current => {
-        return current.filter(note => note.id !== id);
+        return current.filter(note => note.note_id !== id);
     });
 
-    emit('note-removed', {id});
+    emit('note-removed', { id });
 }
 
 export function updateNoteContent(id: string, content: string) {
-  notes.update(current => {
-    return current.map(note => {
-      if (note.id === id) {
-        return {
-          ...note,
-          content
-        };
-      }
+    notes.update(current => {
+        return current.map(note => {
+            if (note.note_id === id) {
+                return {
+                    ...note,
+                    note_content: content
+                };
+            }
 
-      return note;
+            return note;
+        });
     });
-  });
 }

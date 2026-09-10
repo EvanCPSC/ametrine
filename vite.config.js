@@ -29,4 +29,8 @@ export default defineConfig(async () => ({
       ignored: ["**/src-tauri/**"],
     },
   },
+  fs: {
+    // Allows Vite to serve font files out of the pnpm store
+    allow: ['.', './node_modules/material-symbols']
+  }
 }));
