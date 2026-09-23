@@ -6,12 +6,22 @@
   import { listen } from '@tauri-apps/api/event';
   import { getWindowConfig, type Note } from '$lib/Note';
   import { notes, addNote, removeNote } from '$lib/notesStore';
-  import { loadNotes } from '$lib/storage';
+  import { loadNotes, deleteNote as deleteNoteFromStorage } from '$lib/storage';
   import { onMount } from 'svelte';
 
   onMount(async () => {
+console.log('MAIN ONMOUNT'); // temp
+
     const savedNotes = await loadNotes();
+
+    console.log('LOADED NOTES:', savedNotes);
+    console.log(
+      'LOADED IDS:',
+      savedNotes.map(note => note.note_id)
+    );
+
     notes.set(savedNotes);
+
 
     await listen<string>('note-opened', (event) => {
       if (!openNotes.includes(event.payload)) {
@@ -22,6 +32,7 @@
     await listen<string>('note-closed', (event) => {
       openNotes = openNotes.filter(id => id !== event.payload);
     });
+
   });
 
   let openNotes: string[] = [];
@@ -31,12 +42,17 @@
     return note;
   }
 
-  async function createWindow(note: Note) {
+  async function createWindow(noteID: string) {
+    const note = $notes.find(note => note.note_id === noteID);
 
-    const win = new WebviewWindow(
-      note.note_id,
-      getWindowConfig(note)
-    );
+      if (!note) {
+        return;
+      }
+
+      const win = new WebviewWindow(
+        note.note_id,
+        getWindowConfig(note)
+      );
 
     win.once('tauri://created', () => {
       console.log('window created');
@@ -53,6 +69,7 @@
 
   async function deleteNote(id: string) {
     removeNote(id);
+    await deleteNoteFromStorage(id);
 
     openNotes = openNotes.filter(noteID => noteID !== id);
     
@@ -63,7 +80,7 @@
 </script>
 
 <nav class="topnav">
-  <button on:click={async () => await createWindow(await newNote())} class="add-button">
+  <button on:click={async () => await createWindow((await newNote()).note_id)} class="add-button">
     <span class="material-symbols-outlined add-icon">
       note_stack_add
     </span>
@@ -92,16 +109,16 @@
     <hr id="title-note-separator">
   <br>
 
-  {#each $notes as note}
+  {#each $notes as _, index}
     <!-- https://inclusive-components.design/cards/ -->
 
-    <div class="note" on:click={async () => await createWindow(note)}>
-      {#if openNotes.includes(note.note_id)}
+    <div class="note" on:click={async () => await createWindow($notes[index].note_id)}>
+      {#if openNotes.includes($notes[index].note_id)}
         <div class="note-open"></div>
       {/if}
-      <p class="note-content">{note.note_content}</p>
+      <p class="note-content">{$notes[index].note_content}</p>
       <div class="note-right-container">
-        <span class="material-symbols-outlined delete-icon" on:click|stopPropagation={() => deleteNote(note.note_id)}>
+        <span class="material-symbols-outlined delete-icon" on:click|stopPropagation={() => deleteNote($notes[index].note_id)}>
           delete
         </span>
       </div>

@@ -6,49 +6,50 @@
   import { notes } from '$lib/notesStore';
 
   onMount(() => {
-  let unlistenCreated: any;
-  let unlistenRemoved: any;
+    let unlistenCreated: (() => void) | undefined;
+    let unlistenRemoved: (() => void) | undefined;
+    let unlistenUpdated: (() => void) | undefined;
 
-  (async () => {
+    (async () => {
+      unlistenCreated = await listen<Note>('note-created', (event) => {
+        const incoming = event.payload;
 
-    unlistenCreated = await listen('note-created', (event) => {
-      const incoming = event.payload as { id: string };
+        notes.update(current => {
+          if (current.some(n => n.note_id === incoming.note_id)) {
+            return current;
+          }
 
-      notes.update(current => {
-        if (current.some(n => n.id === incoming.id)) return current;
-        return [...current, incoming];
-      });
-    });
-
-    unlistenRemoved = await listen('note-removed', (event) => {
-      const { id } = event.payload as { id: string };
-
-      notes.update(current => {
-        return current.filter(n => n.id !== id);
-      });
-    });
-
-    const unlistenUpdated = await listen('note-updated', (event) => {
-    const incoming = event.payload as Note;
-
-    notes.update(current => {
-        return current.map(note =>
-            note.id === incoming.id
-                ? incoming
-                : note
-            );
+          return [...current, incoming];
         });
-    });
+      });
 
+      unlistenRemoved = await listen<{ id: string }>('note-removed', (event) => {
+        const { id } = event.payload;
+
+        notes.update(current => {
+          return current.filter(n => n.note_id !== id);
+        });
+      });
+
+      unlistenUpdated = await listen<Note>('note-updated', (event) => {
+        const incoming = event.payload;
+
+        notes.update(current => {
+          return current.map(note =>
+            note.note_id === incoming.note_id
+              ? incoming
+              : note
+          );
+        });
+      });
     })();
 
-      return () => {
-        unlistenCreated?.();
-        unlistenRemoved?.();
-      };
-    });
-
-    
+    return () => {
+      unlistenCreated?.();
+      unlistenRemoved?.();
+      unlistenUpdated?.();
+    };
+  });
 </script>
 
 <slot />

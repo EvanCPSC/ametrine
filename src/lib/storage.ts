@@ -45,6 +45,26 @@ export async function saveNote(note: Note) {
     await emit('note-updated', note);
 }
 
+export async function deleteNote(id: string) {
+    const path = await getNotesPath();
+
+    let notes: Note[] = [];
+
+    try {
+        const raw = await readTextFile(path);
+        notes = JSON.parse(raw).notes ?? [];
+    } catch {
+        return;
+    }
+
+    notes = notes.filter(note => note.note_id !== id);
+
+    await writeTextFile(
+        path,
+        JSON.stringify({ notes }, null, 4)
+    );
+}
+
 export async function loadNote(id: string): Promise<Note | null> {
     const path = await getNotesPath();
 

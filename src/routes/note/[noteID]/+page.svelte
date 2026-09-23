@@ -74,9 +74,17 @@
 
   function onInput() {
     clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      if (currNote) saveNote(currNote);
-    }, 300);
+
+    timeout = setTimeout(async () => {
+        if (currNote) {
+            console.log('SAVING:', currNote.note_content);
+            await saveNote(currNote);
+        }
+    }, 500);
+  }
+  
+  async function minimizeWindow() {
+    await getCurrentWindow().minimize();
   }
 
   let showSettings = false;
@@ -107,7 +115,7 @@ function toggleAOT() {
     </span>
   </button>
   <div class="right-buttons">
-    <button class="minimize-button">
+    <button on:click={minimizeWindow} class="minimize-button">
       <span class="material-symbols-outlined minimize-icon">
         collapse_content
       </span>
@@ -152,10 +160,14 @@ function toggleAOT() {
     <MarkdownEditor
       content={currNote.note_content}
       onChange={(content) => {
-          if (currNote) {
-            currNote.note_content = content;
-            onInput();
-          }
+        if (currNote) {
+          currNote = {
+            ...currNote,
+            note_content: content
+          };
+
+          onInput();
+        }
       }}
     />
   {:else}

@@ -14,6 +14,10 @@ export async function addNote() {
     };
 
     notes.update(current => {
+        if (current.some(existingNote => existingNote.note_id === note.note_id)) {
+            return current;
+        }
+
         return [...current, note];
     });
 

@@ -13,6 +13,7 @@
     "core:window:allow-close",
     "core:window:allow-set-always-on-top",
     "fs:default",
-    "fs:allow-appdata-write"
+    "fs:allow-appdata-write",
+    "core:window:allow-minimize"
   ]
 }
