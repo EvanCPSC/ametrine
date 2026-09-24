@@ -77,7 +77,48 @@ console.log('MAIN ONMOUNT'); // temp
     wins.find(w => w.label === id)?.close();
   }
 
+  // Right Click Context Menu
+
+  import ContextMenu from '$lib/ContextMenu.svelte';
+
+  let contextMenu: ContextMenu;
+
+  function showBackgroundMenu(event: MouseEvent) {
+    contextMenu.show(event, [
+      {
+        label: 'New note',
+        action: async () => {
+          const note = await newNote();
+          await createWindow(note.note_id);
+        }
+      },
+      {
+        label: 'Settings',
+        action: () => console.log('Open settings')
+      }
+    ]);
+  }
+
+  function showNoteMenu(event: MouseEvent, note: Note) {
+    contextMenu.show(event, [
+      {
+        label: 'Open note',
+        action: () => createWindow(note.note_id)
+      },
+      {
+        label: 'Delete note',
+        action: () => deleteNote(note.note_id)
+      }
+    ]);
+  }
+
+  // --------------
 </script>
+
+<ContextMenu bind:this={contextMenu} />
+
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<svelte:window on:contextmenu={showBackgroundMenu} />
 
 <nav class="topnav">
   <button on:click={async () => await createWindow((await newNote()).note_id)} class="add-button">
@@ -111,8 +152,16 @@ console.log('MAIN ONMOUNT'); // temp
 
   {#each $notes as _, index}
     <!-- https://inclusive-components.design/cards/ -->
-
-    <div class="note" on:click={async () => await createWindow($notes[index].note_id)}>
+    
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div class="note" 
+      on:contextmenu={(event) => {
+          event.stopPropagation();
+          showNoteMenu(event, $notes[index]);
+      }}
+      on:click={async () => await createWindow($notes[index].note_id)}
+    >
       {#if openNotes.includes($notes[index].note_id)}
         <div class="note-open"></div>
       {/if}
