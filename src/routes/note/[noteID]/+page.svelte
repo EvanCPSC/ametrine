@@ -17,6 +17,7 @@
   import MarkdownEditor from '$lib/MarkdownEditor.svelte';
   
   let currNote: Note | null = null;
+  let alwaysOnTop = false;
 
   $: noteID = page.params.noteID;
   
@@ -38,6 +39,7 @@
           '--hsl-header-hue',
           `${noteColor}`
         );
+        alwaysOnTop = currNote.note_settings.always_on_top;
       }
       const window = getCurrentWindow();
 
@@ -157,12 +159,21 @@
     }, 500);
   }
 
-  let alwaysOnTop = false;
+  async function toggleAOT() {
+    if (!currNote) return;
 
-  function toggleAOT() {
-    alwaysOnTop = !alwaysOnTop
-    getCurrentWindow().setAlwaysOnTop(alwaysOnTop)
-      .catch((err) => console.error("Failed to set always on top:", err));
+    const newValue = !alwaysOnTop;
+
+    try {
+      await getCurrentWindow().setAlwaysOnTop(newValue);
+
+      alwaysOnTop = newValue;
+      currNote.note_settings.always_on_top = newValue;
+
+      await saveNote(currNote);
+    } catch (err) {
+      console.error("Failed to set always on top:", err);
+    }
   }
 
 </script>

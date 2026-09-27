@@ -41,6 +41,7 @@ export function getWindowConfig(note: Note) {
     height: note.window_settings.height,
     x: note.window_settings.pos_x,
     y: note.window_settings.pos_y,
+    alwaysOnTop: note.note_settings.always_on_top,
     decorations: false,
     minHeight: 196,
     minWidth: 172,
