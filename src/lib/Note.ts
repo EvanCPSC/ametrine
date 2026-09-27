@@ -37,8 +37,10 @@ export function getWindowConfig(note: Note) {
   return {
     url: '/note/' + note.note_id,
     title: 'Note',
-    width: 288,
-    height: 320,
+    width: note.window_settings.width,
+    height: note.window_settings.height,
+    x: note.window_settings.pos_x,
+    y: note.window_settings.pos_y,
     decorations: false,
     minHeight: 196,
     minWidth: 172,

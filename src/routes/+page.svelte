@@ -2,7 +2,12 @@
   import { invoke } from "@tauri-apps/api/core";
   import '../app.css';
   import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
-  import { getCurrentWindow, getAllWindows } from '@tauri-apps/api/window';
+  import {
+    getCurrentWindow,
+    getAllWindows,
+    availableMonitors,
+    primaryMonitor
+  } from '@tauri-apps/api/window';
   import { listen } from '@tauri-apps/api/event';
   import { getWindowConfig, type Note } from '$lib/Note';
   import { notes, addNote, removeNote } from '$lib/notesStore';
@@ -19,9 +24,15 @@ console.log('MAIN ONMOUNT'); // temp
       'LOADED IDS:',
       savedNotes.map(note => note.note_id)
     );
+    console.log(
+      'SAVED COLORS:',
+      savedNotes.map(note => ({
+        id: note.note_id,
+        color: note.note_settings.color
+      }))
+    );
 
     notes.set(savedNotes);
-
 
     await listen<string>('note-opened', (event) => {
       if (!openNotes.includes(event.payload)) {
@@ -42,25 +53,109 @@ console.log('MAIN ONMOUNT'); // temp
     return note;
   }
 
-  async function createWindow(noteID: string) {
-    const note = $notes.find(note => note.note_id === noteID);
+  async function getSafeWindowConfig(note: Note) {
+    const config = getWindowConfig(note);
 
-      if (!note) {
-        return;
-      }
+    const monitors = await availableMonitors();
 
-      const win = new WebviewWindow(
-        note.note_id,
-        getWindowConfig(note)
+    if (monitors.length === 0) {
+      return config;
+    }
+
+    const logicalMonitors = monitors.map(monitor => {
+      const position = monitor.workArea.position.toLogical(
+        monitor.scaleFactor
       );
 
-    win.once('tauri://created', () => {
-      console.log('window created');
+      const size = monitor.workArea.size.toLogical(
+        monitor.scaleFactor
+      );
+
+      return {
+        x: position.x,
+        y: position.y,
+        width: size.width,
+        height: size.height
+      };
     });
 
-    win.once('tauri://error', (e) => {
-      console.error(e);
-    });
+    // Find the monitor containing the saved window's top-left corner.
+    let monitor = logicalMonitors.find(monitor =>
+      config.x! >= monitor.x &&
+      config.x! < monitor.x + monitor.width &&
+      config.y! >= monitor.y &&
+      config.y! < monitor.y + monitor.height
+    );
+
+    // If the saved position isn't on any monitor,
+    // use the primary monitor instead.
+    if (!monitor) {
+      const primary = await primaryMonitor();
+
+      if (primary) {
+        const position = primary.workArea.position.toLogical(
+          primary.scaleFactor
+        );
+
+        const size = primary.workArea.size.toLogical(
+          primary.scaleFactor
+        );
+
+        monitor = {
+          x: position.x,
+          y: position.y,
+          width: size.width,
+          height: size.height
+        };
+      }
+    }
+
+    if (!monitor) {
+      return config;
+    }
+
+    // Keep the entire window inside the monitor's usable area.
+    config.x = Math.max(
+      monitor.x,
+      Math.min(
+        config.x!,
+        monitor.x + monitor.width - config.width!
+      )
+    );
+
+    config.y = Math.max(
+      monitor.y,
+      Math.min(
+        config.y!,
+        monitor.y + monitor.height - config.height!
+      )
+    );
+
+    return config;
+  }
+
+  async function createWindow(noteID: string) {
+    const existingWindow = (await getAllWindows()).find(
+      window => window.label === noteID
+    );
+
+    if (existingWindow) {
+      await existingWindow.setFocus();
+      return;
+    }
+
+    const note = $notes.find(note => note.note_id === noteID);
+    if (!note) return;
+
+    const config = await getSafeWindowConfig(note);
+
+    const win = new WebviewWindow(
+      note.note_id,
+      config
+    );
+
+    win.once('tauri://created', () => console.log('window created'));
+    win.once('tauri://error', (e) => console.error(e));
   }
 
   async function closeWindow() {
@@ -93,8 +188,12 @@ console.log('MAIN ONMOUNT'); // temp
         }
       },
       {
-        label: 'Settings',
-        action: () => console.log('Open settings')
+        label: 'Import Note',
+        action: () => console.log('Import Note clicked')
+      },
+      {
+        label: 'Help',
+        action: () => console.log('Help clicked')
       }
     ]);
   }
@@ -108,6 +207,10 @@ console.log('MAIN ONMOUNT'); // temp
       {
         label: 'Delete note',
         action: () => deleteNote(note.note_id)
+      },
+      {
+        label: 'Export Note',
+        action: () => console.log('Export Note clicked')
       }
     ]);
   }
@@ -121,18 +224,21 @@ console.log('MAIN ONMOUNT'); // temp
 <svelte:window on:contextmenu={showBackgroundMenu} />
 
 <nav class="topnav">
-  <button on:click={async () => await createWindow((await newNote()).note_id)} class="add-button">
+  <button on:click={async () => await createWindow((await newNote()).note_id)} class="add-button"
+    title="New Note">
     <span class="material-symbols-outlined add-icon">
       note_stack_add
     </span>
   </button>
   <div class="right-buttons">
-    <button class="settings-button">
-      <span class="material-symbols-outlined settings-icon">
-        settings
+    <button class="import-button"
+      title="Import Note">
+      <span class="material-symbols-outlined import-icon">
+        download
       </span>
     </button>
-    <button on:click={closeWindow} class="close-button">
+    <button on:click={closeWindow} class="close-button"
+      title="Close Ametrine">
       <span class="material-symbols-outlined close-icon">
         close
       </span>
@@ -156,6 +262,8 @@ console.log('MAIN ONMOUNT'); // temp
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div class="note" 
+      title="Open Note"
+      style={`--hsl-note-hue: ${$notes[index].note_settings.color}`}
       on:contextmenu={(event) => {
           event.stopPropagation();
           showNoteMenu(event, $notes[index]);
@@ -167,9 +275,15 @@ console.log('MAIN ONMOUNT'); // temp
       {/if}
       <p class="note-content">{$notes[index].note_content}</p>
       <div class="note-right-container">
-        <span class="material-symbols-outlined delete-icon" on:click|stopPropagation={() => deleteNote($notes[index].note_id)}>
+        <span class="material-symbols-outlined delete-icon" on:click|stopPropagation={() => deleteNote($notes[index].note_id)}
+          title="Delete Note">
           delete
         </span>
+        <span class="material-symbols-outlined export-icon" on:click|stopPropagation={() => void(0)}
+          title="Export Note">
+          upload
+        </span>
+        <span class="note-preview-spacer"></span>
       </div>
       <div class="right-triangle"></div>
     </div>
@@ -286,7 +400,7 @@ button {
   cursor: pointer;
 }
 
-.add-button, .settings-button, .close-button {
+.add-button, .import-button, .close-button {
   background-color: var(--container-bg);
   transition: 0.2s;
 }
@@ -296,7 +410,7 @@ button {
   justify-content: flex-end;
 }
 
-.add-icon, .settings-icon, .close-icon {
+.add-icon, .import-icon, .close-icon {
   color: var(--primary-icon);
   transition: 0.2s;
 }
@@ -309,8 +423,8 @@ button {
   transition: 0.2s;
 }
 
-.settings-button:hover {
-  .settings-icon {
+.import-button:hover {
+  .import-icon {
     color: var(--hover-icon);
   }
   background-color: var(--hover-settings-bg);
@@ -325,11 +439,15 @@ button {
   transition: 0.2s;
 }
 
-.delete-icon {
+.delete-icon, .export-icon {
   opacity: 0%;
   cursor: pointer;
   color: var(--primary-icon);
   transition: 0.2s;
+}
+
+.note-preview-spacer {
+  flex: 0.7;
 }
 
 .note-content {
@@ -356,14 +474,20 @@ button {
   transition: 0.2s;
   display: flex;
   align-items: flex-start;
+  .right-triangle {
+    background-color: hsl(var(--hsl-note-hue), var(--hsl-header-saturation), var(--hsl-header-lightness));
+  }
+  .note-open {
+    background-color: hsl(var(--hsl-note-hue), var(--hsl-header-saturation), var(--hsl-header-lightness));
+  }
 }
 
 .note:hover {
-  .delete-icon {
+  .delete-icon, .export-icon {
     opacity: 100%;
     transition: 0.2s;
   }
-  .delete-icon:hover {
+  .delete-icon:hover, .export-icon:hover {
     color: var(--secondary-font);
     transition: 0.2s;
   }
@@ -383,7 +507,6 @@ button {
   right: 0;
   width: 2rem;
   height: 2rem;
-  background-color: var(--hsl-header);
   clip-path: polygon(0% 100%, 100% 100%, 100% 0%);
 }
 
@@ -393,7 +516,6 @@ button {
   left: 0;
   width: 3rem;
   height: 0.25rem;
-  background-color: var(--hsl-header);
 }
 
 </style>

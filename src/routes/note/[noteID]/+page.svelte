@@ -31,7 +31,23 @@
           window_settings: { ...defaultWindowSettings },
           note_content: ''
         };
+      } else {
+        noteColor = currNote.note_settings.color;
+
+        document.documentElement.style.setProperty(
+          '--hsl-header-hue',
+          `${noteColor}`
+        );
       }
+      const window = getCurrentWindow();
+
+      await window.onMoved(() => {
+        saveWindowSettings();
+      });
+
+      await window.onResized(() => {
+        saveWindowSettings();
+      });
     }
 
     await emit('note-opened', noteID);
@@ -89,22 +105,65 @@
 
   let showSettings = false;
   let noteColor = 286;
+  let colorSaveTimeout: ReturnType<typeof setTimeout>;
 
   function updateVariable(value: number) {
-  document.documentElement.style.setProperty(
-    '--hsl-header-hue',
-    `${value}`
-  );
+    // Immediately update the color
+    document.documentElement.style.setProperty(
+      '--hsl-header-hue',
+      `${value}`
+    );
 
-}
+    // Update the note's color setting
+    if (!currNote) return;
 
-let alwaysOnTop = false;
+    currNote.note_settings.color = value;
 
-function toggleAOT() {
-  alwaysOnTop = !alwaysOnTop
-  getCurrentWindow().setAlwaysOnTop(alwaysOnTop)
-    .catch((err) => console.error("Failed to set always on top:", err));
-}
+    // Wait until the slider stops moving before saving
+    clearTimeout(colorSaveTimeout);
+
+    colorSaveTimeout = setTimeout(async () => {
+      if (currNote) {
+        await saveNote(currNote);
+      }
+    }, 500);
+  }
+
+  let windowSaveTimeout: ReturnType<typeof setTimeout>;
+
+  async function saveWindowSettings() {
+    if (!currNote) return;
+
+    const window = getCurrentWindow();
+    const scaleFactor = await window.scaleFactor();
+
+    const size = await window.innerSize();
+    const position = await window.outerPosition();
+
+    const logicalSize = size.toLogical(scaleFactor);
+    const logicalPosition = position.toLogical(scaleFactor);
+
+    currNote.window_settings.width = logicalSize.width;
+    currNote.window_settings.height = logicalSize.height;
+    currNote.window_settings.pos_x = logicalPosition.x;
+    currNote.window_settings.pos_y = logicalPosition.y;
+
+    clearTimeout(windowSaveTimeout);
+
+    windowSaveTimeout = setTimeout(async () => {
+      if (currNote) {
+        await saveNote(currNote);
+      }
+    }, 500);
+  }
+
+  let alwaysOnTop = false;
+
+  function toggleAOT() {
+    alwaysOnTop = !alwaysOnTop
+    getCurrentWindow().setAlwaysOnTop(alwaysOnTop)
+      .catch((err) => console.error("Failed to set always on top:", err));
+  }
 
 </script>
 
