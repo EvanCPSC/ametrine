@@ -8,6 +8,9 @@
         action: () => void;
         disabled?: boolean;
       }
+    | {
+        separator: true;
+      };
 
   let items: MenuItem[] = [];
   let visible = false;
@@ -50,6 +53,8 @@
   }
 
   function selectItem(item: MenuItem) {
+    if ('separator' in item || item.disabled) return;
+
     close();
     item.action();
   }
@@ -80,14 +85,18 @@
     on:contextmenu|preventDefault|stopPropagation
   >
     {#each items as item}
-        <button
-          type="button"
-          role="menuitem"
-          disabled={item.disabled ? false : undefined}
-          on:click={() => selectItem(item)}
-        >
-          {item.label}
-        </button>
+        {#if 'separator' in item}
+            <div class="separator" role="separator"></div>
+        {:else}
+            <button
+                type="button"
+                role="menuitem"
+                disabled={item.disabled ? false : undefined}
+                on:click={() => selectItem(item)}
+            >
+                {item.label}
+            </button>
+        {/if}
     {/each}
   </div>
 {/if}
@@ -126,5 +135,11 @@
   button:disabled {
     opacity: 0.4;
     cursor: default;
+  }
+
+  .separator {
+    height: 0.05rem;
+    margin: 0.3rem 0.25rem;
+    background: rgba(128, 128, 128, 0.3);
   }
 </style>

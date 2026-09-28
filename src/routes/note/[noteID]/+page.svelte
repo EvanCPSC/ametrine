@@ -4,7 +4,7 @@
   import { onMount } from 'svelte';
   import { invoke } from "@tauri-apps/api/core";
   import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
-  import { getCurrentWindow } from '@tauri-apps/api/window';
+  import { getCurrentWindow, getAllWindows } from '@tauri-apps/api/window';
   import {
     getWindowConfig,
     type Note,
@@ -176,7 +176,103 @@
     }
   }
 
+  // Right Click Context Menu
+
+  import ContextMenu from '$lib/ContextMenu.svelte';
+
+  let contextMenu: ContextMenu;
+
+  function showBackgroundMenu(event: MouseEvent) {
+    contextMenu.show(event, [
+      {
+        label: 'Note list',
+        action: openNoteList
+      },
+      { separator: true },
+      {
+        label: 'Copy',
+        action: copyNote
+      },
+      {
+        label: 'Paste',
+        action: pasteNote
+      },
+      { separator: true },
+      {
+        label: 'Settings',
+        action: () => showSettings = !showSettings
+      },
+      {
+        label: 'Help',
+        action: () => console.log('Help clicked')
+      }
+    ]);
+  }
+
+  let markdownEditor: MarkdownEditor;
+
+  async function copyNote() {
+    try {
+      await markdownEditor.copySelection();
+    } catch (err) {
+      console.error('Copy failed:', err);
+    }
+  }
+
+  async function pasteNote() {
+    try {
+      await markdownEditor.pasteAtCursor();
+    } catch (err) {
+      console.error('Paste failed:', err);
+    }
+  }
+
+  async function openNoteList() {
+    try {
+      const windows = await getAllWindows();
+
+      const mainWindow = windows.find(
+        window => window.label === 'main'
+      );
+
+      if (mainWindow) {
+        await mainWindow.show();
+        await mainWindow.unminimize();
+        await mainWindow.setFocus();
+
+        return;
+      }
+
+      const newMainWindow = new WebviewWindow('main', {
+        url: '/',
+        title: 'Ametrine - Sticky Notes',
+        width: 352,
+        height: 544,
+        decorations: false,
+        minWidth: 320,
+        minHeight: 512,
+        resizable: true
+      });
+
+      newMainWindow.once('tauri://created', () => {
+        console.log('Main window created');
+      });
+
+      newMainWindow.once('tauri://error', (error) => {
+        console.error('Failed to create main window:', error);
+      });
+
+    } catch (err) {
+      console.error('Failed to open note list:', err);
+    }
+  }
+
 </script>
+
+<ContextMenu bind:this={contextMenu} />
+
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<svelte:window on:contextmenu={showBackgroundMenu} />
 
 <nav class="topnav">
   <button on:click={async () => await createWindow(await newNote())} class="add-button">
@@ -228,6 +324,7 @@
   {/if}
   {#if currNote}
     <MarkdownEditor
+      bind:this={markdownEditor}
       content={currNote.note_content}
       onChange={(content) => {
         if (currNote) {

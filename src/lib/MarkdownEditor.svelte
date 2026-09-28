@@ -217,7 +217,31 @@
     export let content = '';
     export let onChange: (content: string) => void;
 
+    export async function copySelection() {
+        if (!view) return;
+
+        const { from, to } = view.state.selection.main;
+        const text = view.state.sliceDoc(from, to);
+
+        if (!text) return;
+
+        await navigator.clipboard.writeText(text);
+    }
+
+    export async function pasteAtCursor() {
+        if (!view) return;
+
+        const text = await navigator.clipboard.readText();
+
+        view.dispatch(
+            view.state.replaceSelection(text)
+        );
+
+        view.focus();
+    }
+
     let editor: HTMLDivElement;
+    let view: EditorView;
 
     const tableKeymap = keymap.of([
         {
@@ -288,7 +312,7 @@
             ]
         });
 
-        const view = new EditorView({
+        view = new EditorView({
             state: startState,
             parent: editor
         });
