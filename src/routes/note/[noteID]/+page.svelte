@@ -21,45 +21,69 @@
 
   $: noteID = page.params.noteID;
   
-  onMount(async () => {
-    if (noteID) {
-      currNote = await loadNote(noteID);
+  onMount(() => {
+    let destroyed = false;
+    let unlisten: (() => void)[] = [];
 
-      if (!currNote) {
-        currNote = {
-          note_id: noteID,
-          note_settings: { ...defaultNoteSettings },
-          window_settings: { ...defaultWindowSettings },
-          note_content: ''
-        };
-      } else {
-        noteColor = currNote.note_settings.color;
+    async function initialize() {
+      if (noteID) {
+        currNote = await loadNote(noteID);
 
-        document.documentElement.style.setProperty(
-          '--hsl-header-hue',
-          `${noteColor}`
-        );
-        alwaysOnTop = currNote.note_settings.always_on_top;
+        if (!currNote) {
+          currNote = {
+            note_id: noteID,
+            note_settings: { ...defaultNoteSettings },
+            window_settings: { ...defaultWindowSettings },
+            note_content: ''
+          };
+        } else {
+          noteColor = currNote.note_settings.color;
+
+          document.documentElement.style.setProperty(
+            '--hsl-header-hue',
+            `${noteColor}`
+          );
+
+          alwaysOnTop = currNote.note_settings.always_on_top;
+        }
+
+        if (destroyed) return;
+
+        const window = getCurrentWindow();
+
+        const unlistenMoved = await window.onMoved(() => {
+          saveWindowSettings();
+        });
+
+        const unlistenResized = await window.onResized(() => {
+          saveWindowSettings();
+        });
+
+        unlisten = [
+          unlistenMoved,
+          unlistenResized
+        ];
+
+        if (destroyed) {
+          unlisten.forEach(fn => fn());
+          return;
+        }
       }
-      const window = getCurrentWindow();
 
-      await window.onMoved(() => {
-        saveWindowSettings();
-      });
-
-      await window.onResized(() => {
-        saveWindowSettings();
-      });
+      if (!destroyed) {
+        await emit('note-opened', noteID);
+      }
     }
 
-    await emit('note-opened', noteID);
+    initialize().catch(err => {
+      console.error('Failed to initialize note:', err);
+    });
+
+    return () => {
+      destroyed = true;
+      unlisten.forEach(fn => fn());
+    };
   });
-
-  function notifyNoteClosed() {
-    if (noteID) {
-      emit('note-closed', noteID);
-    }
-  }
 
   async function newNote() {
     const note = await addNote();
@@ -83,8 +107,6 @@
   }
 
   async function closeWindow() {
-    notifyNoteClosed();
-
     await getCurrentWindow().close();
   }
 

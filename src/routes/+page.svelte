@@ -15,9 +15,9 @@
   import { onMount } from 'svelte';
 
   onMount(async () => {
-console.log('MAIN ONMOUNT'); // temp
 
     const savedNotes = await loadNotes();
+    await refreshOpenNotes();
 
     console.log('LOADED NOTES:', savedNotes);
     console.log(
@@ -44,7 +44,19 @@ console.log('MAIN ONMOUNT'); // temp
       openNotes = openNotes.filter(id => id !== event.payload);
     });
 
+    await listen('tauri://destroyed', async () => {
+      await refreshOpenNotes();
+    });
+
   });
+
+  async function refreshOpenNotes() {
+    const windows = await getAllWindows();
+
+    openNotes = windows
+      .map(window => window.label)
+      .filter(label => label.startsWith('note-'));
+  }
 
   let openNotes: string[] = [];
 
